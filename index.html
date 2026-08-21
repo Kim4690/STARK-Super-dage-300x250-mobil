@@ -5,9 +5,13 @@
     <script type="text/javascript">
 var bbState = 'production';
 
-var clickTracker = '';
-var clickTAG1 = '${CLICK_URL}' + ((window.adnmClick) ? window.adnmClick : 'https://track.adform.net/C/?bn=89920035;gdpr=${GDPR};gdpr_consent=${GDPR_CONSENT_50}');
+function getUrlParam(name) {
+    var match = new RegExp('[?&]' + name + '=([^&]*)').exec(location.search);
+    return match ? decodeURIComponent(match[1].replace(/\+/g, ' ')) : null;
+}
 
+var clickTracker = '';
+var clickTAG1 = getUrlParam('clickTag') || ((window.adnmClick) ? window.adnmClick : 'https://track.adform.net/C/?bn=89920035;gdpr=${GDPR};gdpr_consent=${GDPR_CONSENT_50}');
 
 var customEvents = [];
 customEvents[1] = 'Subpage activated';
@@ -226,9 +230,16 @@ window.onload = function() {
         var tlMain = new gsap.timeline({ onComplete: tlMainRestart });
         tlMain.pause();
 
+        function fireImpressionPixel() {
+            var ts = new Date().getTime();
+            var pixelUrl = 'https://track.adform.net/adfserve/?bn=89920035;1x1inv=1;srctype=3;gdpr=${GDPR};gdpr_consent=${GDPR_CONSENT_50};ord=' + ts;
+            var trackImg = new Image(1, 1);
+            trackImg.src = pixelUrl;
+        }
 
         function init() {
             bb.registerImpression();
+            fireImpressionPixel();
             if (usePoliteLoad == true) {
                 bb.politeListen();
             } else {
